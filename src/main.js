@@ -1,21 +1,50 @@
 import './style.css'
 
 document.querySelector('#app').innerHTML = `
-  <div>
-    <div class="logo">
-      <h1>OutSkill Project</h1>
-    </div>
-    <div class="card">
-      <h2>Personal Assistant</h2>
-      <p>Welcome to your personal assistant application!</p>
-      <button id="get-started" type="button">Get Started</button>
-    </div>
-    <p class="read-the-docs">
-      Your personal assistant is ready to help you with various tasks.
-    </p>
+  <div class="container">
+    <header class="header">
+      <nav class="nav">
+        <button class="nav-btn login-btn">Login</button>
+        <button class="nav-btn signup-btn">Signup</button>
+        <button class="nav-btn dashboard-btn">Go to Dashboard</button>
+      </nav>
+    </header>
+    
+    <main class="main-content">
+      <div class="welcome-section">
+        <h1 class="welcome-heading">Welcome Back</h1>
+        <p class="welcome-subtitle">Organize your tasks and boost your productivity</p>
+        <div class="cta-section">
+          <button class="cta-btn primary">Get Started</button>
+          <button class="cta-btn secondary">Learn More</button>
+        </div>
+      </div>
+    </main>
   </div>
 `
 
-document.querySelector('#get-started').addEventListener('click', () => {
-  alert('Welcome! Your personal assistant is ready to help you.')
+// Add event listeners
+document.querySelector('.login-btn').addEventListener('click', () => {
+  console.log('Login clicked')
+  // Add login functionality here
+})
+
+document.querySelector('.signup-btn').addEventListener('click', () => {
+  console.log('Signup clicked')
+  // Add signup functionality here
+})
+
+document.querySelector('.dashboard-btn').addEventListener('click', () => {
+  console.log('Dashboard clicked')
+  // Add dashboard navigation here
+})
+
+document.querySelector('.primary').addEventListener('click', () => {
+  console.log('Get Started clicked')
+  // Add get started functionality here
+})
+
+document.querySelector('.secondary').addEventListener('click', () => {
+  console.log('Learn More clicked')
+  // Add learn more functionality here
 })
