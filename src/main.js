@@ -36,7 +36,7 @@ document.querySelector('.signup-btn').addEventListener('click', () => {
 
 document.querySelector('.dashboard-btn').addEventListener('click', () => {
   console.log('Dashboard clicked')
-  // Add dashboard navigation here
+  window.location.href = '/dashboard.html'
 })
 
 document.querySelector('.primary').addEventListener('click', () => {
