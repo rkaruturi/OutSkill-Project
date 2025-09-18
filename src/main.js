@@ -26,7 +26,7 @@ document.querySelector('#app').innerHTML = `
 // Add event listeners
 document.querySelector('.login-btn').addEventListener('click', () => {
   console.log('Login clicked')
-  // Add login functionality here
+  window.location.href = '/login.html'
 })
 
 document.querySelector('.signup-btn').addEventListener('click', () => {
