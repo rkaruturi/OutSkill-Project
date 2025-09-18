@@ -267,6 +267,123 @@ body {
   outline-offset: 2px;
 }
 
+/* Signup Page Styles */
+.signup-section {
+  max-width: 450px;
+  width: 100%;
+  padding: 3rem 2.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.signup-heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, var(--primary-blue), var(--light-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.signup-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.signup-btn-primary {
+  padding: 1.25rem 2rem;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: var(--primary-blue);
+  color: var(--white);
+  box-shadow: var(--shadow);
+  margin-top: 1rem;
+}
+
+.signup-btn-primary:hover {
+  background: var(--light-blue);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.signup-btn-primary:active {
+  transform: translateY(0);
+}
+
+.signup-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+}
+
+.signup-text {
+  color: var(--text-light);
+  font-size: 0.95rem;
+}
+
+.login-link {
+  color: var(--primary-blue);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.login-link:hover {
+  color: var(--light-blue);
+  text-decoration: underline;
+}
+
+/* Responsive adjustments for signup page */
+@media (max-width: 768px) {
+  .signup-section {
+    padding: 2rem 1.5rem;
+    margin: 1rem;
+    max-width: 400px;
+  }
+  
+  .signup-heading {
+    font-size: 2rem;
+  }
+  
+  .signup-btn-primary {
+    padding: 1.1rem 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .signup-section {
+    padding: 1.5rem 1rem;
+    border-radius: 15px;
+  }
+  
+  .signup-heading {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .signup-btn-primary {
+    padding: 1rem 1.25rem;
+    font-size: 1rem;
+  }
+}
+
+/* Focus states for signup form accessibility */
+.signup-btn-primary:focus {
+  outline: 3px solid var(--lighter-blue);
+  outline-offset: 2px;
+}
 /* Animation for smooth entrance */
 @keyframes fadeInUp {
   from {

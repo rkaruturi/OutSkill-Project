@@ -31,7 +31,7 @@ document.querySelector('.login-btn').addEventListener('click', () => {
 
 document.querySelector('.signup-btn').addEventListener('click', () => {
   console.log('Signup clicked')
-  // Add signup functionality here
+  window.location.href = '/signup.html'
 })
 
 document.querySelector('.dashboard-btn').addEventListener('click', () => {

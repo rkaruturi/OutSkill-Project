@@ -40,14 +40,12 @@ document.querySelector('.back-btn').addEventListener('click', () => {
 })
 
 document.querySelector('.signup-btn').addEventListener('click', () => {
-  console.log('Navigate to signup')
-  // Add signup navigation here
+  window.location.href = '/signup.html'
 })
 
 document.querySelector('.signup-link').addEventListener('click', (e) => {
   e.preventDefault()
-  console.log('Navigate to signup from link')
-  // Add signup navigation here
+  window.location.href = '/signup.html'
 })
 
 document.querySelector('#loginForm').addEventListener('submit', (e) => {
