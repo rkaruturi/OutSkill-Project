@@ -1,4 +1,5 @@
 import './style.css'
+import { signUp } from './supabase.js'
 
 document.querySelector('#app').innerHTML = `
   <div class="container">
@@ -53,16 +54,103 @@ document.querySelector('.login-link').addEventListener('click', (e) => {
   window.location.href = '/login.html'
 })
 
-document.querySelector('#signupForm').addEventListener('submit', (e) => {
+document.querySelector('#signupForm').addEventListener('submit', async (e) => {
   e.preventDefault()
   const name = document.querySelector('#name').value
   const email = document.querySelector('#email').value
   const password = document.querySelector('#password').value
   
-  console.log('Signup attempt:', { name, email, password })
-  
-  // Add signup logic here
-  if (name && email && password) {
-    alert('Signup functionality would be implemented here')
+  // Basic validation
+  if (!name || !email || !password) {
+    showMessage('Please fill in all fields', 'error')
+    return
+  }
+
+  if (password.length < 6) {
+    showMessage('Password must be at least 6 characters long', 'error')
+    return
+  }
+
+  // Disable submit button during signup
+  const submitBtn = document.querySelector('.signup-btn-primary')
+  const originalText = submitBtn.textContent
+  submitBtn.disabled = true
+  submitBtn.textContent = 'Creating Account...'
+
+  try {
+    const { data, error } = await signUp(email, password, name)
+    
+    if (error) {
+      showMessage(error.message, 'error')
+    } else {
+      showMessage('Account created successfully! You can now login.', 'success')
+      // Clear form
+      document.querySelector('#signupForm').reset()
+      // Redirect to login after 2 seconds
+      setTimeout(() => {
+        window.location.href = '/login.html'
+      }, 2000)
+    }
+  } catch (error) {
+    showMessage('An unexpected error occurred. Please try again.', 'error')
+  } finally {
+    // Re-enable submit button
+    submitBtn.disabled = false
+    submitBtn.textContent = originalText
   }
 })
+
+function showMessage(message, type) {
+  // Remove existing message if any
+  const existingMessage = document.querySelector('.message')
+  if (existingMessage) {
+    existingMessage.remove()
+  }
+
+  // Create message element
+  const messageDiv = document.createElement('div')
+  messageDiv.className = `message ${type}`
+  messageDiv.textContent = message
+  
+  // Insert message before the form
+  const form = document.querySelector('.signup-form')
+  form.parentNode.insertBefore(messageDiv, form)
+  
+  // Auto-remove message after 5 seconds
+  setTimeout(() => {
+    if (messageDiv.parentNode) {
+      messageDiv.remove()
+    }
+  }, 5000)
+}
+
+// Add message styles
+const style = document.createElement('style')
+style.textContent = `
+  .message {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    text-align: center;
+  }
+  
+  .message.success {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+  }
+  
+  .message.error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+  }
+  
+  .signup-btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+`
+document.head.appendChild(style)

@@ -1,4 +1,5 @@
 import './style.css'
+import { signOut, getCurrentUser, onAuthStateChange } from './supabase.js'
 
 document.querySelector('#app').innerHTML = `
   <div class="container">
@@ -41,6 +42,30 @@ document.querySelector('#app').innerHTML = `
 
 // Task management functionality
 let taskCount = 3;
+
+// Check authentication on page load
+checkAuth()
+
+async function checkAuth() {
+  const user = await getCurrentUser()
+  if (!user) {
+    // Redirect to login if not authenticated
+    window.location.href = '/login.html'
+    return
+  }
+  
+  // Update UI with user info
+  const heading = document.querySelector('.dashboard-heading')
+  const userName = user.user_metadata?.full_name || user.email
+  heading.textContent = `Welcome, ${userName}!`
+}
+
+// Listen for auth state changes
+onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_OUT') {
+    window.location.href = '/'
+  }
+})
 
 // Add event listeners
 document.querySelector('.back-btn').addEventListener('click', () => {
@@ -91,9 +116,19 @@ function addNewTask() {
   }
 }
 
-function handleLogout() {
+async function handleLogout() {
   if (confirm('Are you sure you want to logout?')) {
-    console.log('User logged out')
-    window.location.href = '/'
+    try {
+      const { error } = await signOut()
+      if (error) {
+        console.error('Logout error:', error)
+        alert('Error logging out. Please try again.')
+      } else {
+        window.location.href = '/'
+      }
+    } catch (error) {
+      console.error('Logout error:', error)
+      alert('Error logging out. Please try again.')
+    }
   }
 }

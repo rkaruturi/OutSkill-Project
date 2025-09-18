@@ -1,4 +1,5 @@
 import './style.css'
+import { signIn } from './supabase.js'
 
 document.querySelector('#app').innerHTML = `
   <div class="container">
@@ -48,15 +49,95 @@ document.querySelector('.signup-link').addEventListener('click', (e) => {
   window.location.href = '/signup.html'
 })
 
-document.querySelector('#loginForm').addEventListener('submit', (e) => {
+document.querySelector('#loginForm').addEventListener('submit', async (e) => {
   e.preventDefault()
   const email = document.querySelector('#email').value
   const password = document.querySelector('#password').value
   
-  console.log('Login attempt:', { email, password })
-  
-  // Add login logic here
-  if (email && password) {
-    alert('Login functionality would be implemented here')
+  // Basic validation
+  if (!email || !password) {
+    showMessage('Please fill in all fields', 'error')
+    return
+  }
+
+  // Disable submit button during login
+  const submitBtn = document.querySelector('.login-btn-primary')
+  const originalText = submitBtn.textContent
+  submitBtn.disabled = true
+  submitBtn.textContent = 'Signing In...'
+
+  try {
+    const { data, error } = await signIn(email, password)
+    
+    if (error) {
+      showMessage(error.message, 'error')
+    } else {
+      showMessage('Login successful! Redirecting...', 'success')
+      // Redirect to dashboard after successful login
+      setTimeout(() => {
+        window.location.href = '/dashboard.html'
+      }, 1500)
+    }
+  } catch (error) {
+    showMessage('An unexpected error occurred. Please try again.', 'error')
+  } finally {
+    // Re-enable submit button
+    submitBtn.disabled = false
+    submitBtn.textContent = originalText
   }
 })
+
+function showMessage(message, type) {
+  // Remove existing message if any
+  const existingMessage = document.querySelector('.message')
+  if (existingMessage) {
+    existingMessage.remove()
+  }
+
+  // Create message element
+  const messageDiv = document.createElement('div')
+  messageDiv.className = `message ${type}`
+  messageDiv.textContent = message
+  
+  // Insert message before the form
+  const form = document.querySelector('.login-form')
+  form.parentNode.insertBefore(messageDiv, form)
+  
+  // Auto-remove message after 5 seconds
+  setTimeout(() => {
+    if (messageDiv.parentNode) {
+      messageDiv.remove()
+    }
+  }, 5000)
+}
+
+// Add message styles
+const style = document.createElement('style')
+style.textContent = `
+  .message {
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+    text-align: center;
+  }
+  
+  .message.success {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #a7f3d0;
+  }
+  
+  .message.error {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+  }
+  
+  .login-btn-primary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+`
+document.head.appendChild(style)

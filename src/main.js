@@ -1,4 +1,5 @@
 import './style.css'
+import { getCurrentUser } from './supabase.js'
 
 document.querySelector('#app').innerHTML = `
   <div class="container">
@@ -23,10 +24,37 @@ document.querySelector('#app').innerHTML = `
   </div>
 `
 
+// Check if user is already logged in
+checkAuthStatus()
+
+async function checkAuthStatus() {
+  const user = await getCurrentUser()
+  const dashboardBtn = document.querySelector('.dashboard-btn')
+  const loginBtn = document.querySelector('.login-btn')
+  const signupBtn = document.querySelector('.signup-btn')
+  
+  if (user) {
+    // User is logged in - show dashboard button prominently
+    dashboardBtn.style.display = 'block'
+    loginBtn.textContent = 'Dashboard'
+    signupBtn.style.display = 'none'
+  } else {
+    // User is not logged in - show login/signup buttons
+    dashboardBtn.style.display = 'block'
+    loginBtn.style.display = 'block'
+    signupBtn.style.display = 'block'
+  }
+}
+
 // Add event listeners
 document.querySelector('.login-btn').addEventListener('click', () => {
-  console.log('Login clicked')
-  window.location.href = '/login.html'
+  getCurrentUser().then(user => {
+    if (user) {
+      window.location.href = '/dashboard.html'
+    } else {
+      window.location.href = '/login.html'
+    }
+  })
 })
 
 document.querySelector('.signup-btn').addEventListener('click', () => {
@@ -40,11 +68,16 @@ document.querySelector('.dashboard-btn').addEventListener('click', () => {
 })
 
 document.querySelector('.primary').addEventListener('click', () => {
-  console.log('Get Started clicked')
-  // Add get started functionality here
+  getCurrentUser().then(user => {
+    if (user) {
+      window.location.href = '/dashboard.html'
+    } else {
+      window.location.href = '/signup.html'
+    }
+  })
 })
 
 document.querySelector('.secondary').addEventListener('click', () => {
-  console.log('Learn More clicked')
-  // Add learn more functionality here
+  // Scroll to learn more section or show info
+  alert('Learn more about our task management features!')
 })
