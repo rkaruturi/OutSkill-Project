@@ -11,36 +11,122 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 // Auth helper functions
 export const signUp = async (email, password, name) => {
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: {
-        full_name: name,
+  try {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: name,
+        }
       }
+    })
+    
+    if (error) {
+      console.error('Signup error:', error)
+      return { data: null, error }
     }
-  })
-  return { data, error }
+    
+    return { data, error: null }
+  } catch (err) {
+    console.error('Signup exception:', err)
+    return { data: null, error: { message: 'An unexpected error occurred during signup' } }
+  }
 }
 
 export const signIn = async (email, password) => {
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email,
-    password
-  })
-  return { data, error }
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    })
+    
+    if (error) {
+      console.error('Login error:', error)
+      return { data: null, error }
+    }
+    
+    return { data, error: null }
+  } catch (err) {
+    console.error('Login exception:', err)
+    return { data: null, error: { message: 'An unexpected error occurred during login' } }
+  }
 }
 
 export const signOut = async () => {
-  const { error } = await supabase.auth.signOut()
-  return { error }
+  try {
+    const { error } = await supabase.auth.signOut()
+    if (error) {
+      console.error('Logout error:', error)
+    }
+    return { error }
+  } catch (err) {
+    console.error('Logout exception:', err)
+    return { error: { message: 'An unexpected error occurred during logout' } }
+  }
 }
 
 export const getCurrentUser = async () => {
-  const { data: { user } } = await supabase.auth.getUser()
-  return user
+  try {
+    const { data: { user }, error } = await supabase.auth.getUser()
+    if (error) {
+      console.error('Get user error:', error)
+      return null
+    }
+    return user
+  } catch (err) {
+    console.error('Get user exception:', err)
+    return null
+  }
 }
 
 export const onAuthStateChange = (callback) => {
-  return supabase.auth.onAuthStateChange(callback)
+  try {
+    return supabase.auth.onAuthStateChange(callback)
+  } catch (err) {
+    console.error('Auth state change error:', err)
+    return { data: { subscription: null } }
+  }
+}
+
+// Profile helper functions
+export const getProfile = async (userId) => {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', userId)
+      .single()
+    
+    if (error) {
+      console.error('Get profile error:', error)
+      return { data: null, error }
+    }
+    
+    return { data, error: null }
+  } catch (err) {
+    console.error('Get profile exception:', err)
+    return { data: null, error: { message: 'An unexpected error occurred while fetching profile' } }
+  }
+}
+
+export const updateProfile = async (userId, updates) => {
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update(updates)
+      .eq('id', userId)
+      .select()
+      .single()
+    
+    if (error) {
+      console.error('Update profile error:', error)
+      return { data: null, error }
+    }
+    
+    return { data, error: null }
+  } catch (err) {
+    console.error('Update profile exception:', err)
+    return { data: null, error: { message: 'An unexpected error occurred while updating profile' } }
+  }
 }

@@ -60,6 +60,12 @@ document.querySelector('#loginForm').addEventListener('submit', async (e) => {
     return
   }
 
+  // Email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(email)) {
+    showMessage('Please enter a valid email address', 'error')
+    return
+  }
   // Disable submit button during login
   const submitBtn = document.querySelector('.login-btn-primary')
   const originalText = submitBtn.textContent
@@ -70,15 +76,29 @@ document.querySelector('#loginForm').addEventListener('submit', async (e) => {
     const { data, error } = await signIn(email, password)
     
     if (error) {
-      showMessage(error.message, 'error')
+      // Handle specific Supabase error messages
+      let errorMessage = error.message
+      if (error.message.includes('Invalid login credentials')) {
+        errorMessage = 'Invalid email or password. Please check your credentials and try again.'
+      } else if (error.message.includes('Email not confirmed')) {
+        errorMessage = 'Please check your email and confirm your account before logging in.'
+      } else if (error.message.includes('Too many requests')) {
+        errorMessage = 'Too many login attempts. Please wait a moment before trying again.'
+      }
+      showMessage(errorMessage, 'error')
     } else {
-      showMessage('Login successful! Redirecting...', 'success')
-      // Redirect to dashboard after successful login
-      setTimeout(() => {
-        window.location.href = '/dashboard.html'
-      }, 1500)
+      if (data.user) {
+        showMessage('Login successful! Redirecting...', 'success')
+        // Redirect to dashboard after successful login
+        setTimeout(() => {
+          window.location.href = '/dashboard.html'
+        }, 1500)
+      } else {
+        showMessage('Login failed. Please try again.', 'error')
+      }
     }
   } catch (error) {
+    console.error('Login error:', error)
     showMessage('An unexpected error occurred. Please try again.', 'error')
   } finally {
     // Re-enable submit button

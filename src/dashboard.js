@@ -56,7 +56,7 @@ async function checkAuth() {
   
   // Update UI with user info
   const heading = document.querySelector('.dashboard-heading')
-  const userName = user.user_metadata?.full_name || user.email
+  const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
   heading.textContent = `Welcome, ${userName}!`
 }
 

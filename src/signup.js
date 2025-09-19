@@ -71,6 +71,12 @@ document.querySelector('#signupForm').addEventListener('submit', async (e) => {
     return
   }
 
+  // Email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(email)) {
+    showMessage('Please enter a valid email address', 'error')
+    return
+  }
   // Disable submit button during signup
   const submitBtn = document.querySelector('.signup-btn-primary')
   const originalText = submitBtn.textContent
@@ -81,17 +87,31 @@ document.querySelector('#signupForm').addEventListener('submit', async (e) => {
     const { data, error } = await signUp(email, password, name)
     
     if (error) {
-      showMessage(error.message, 'error')
+      // Handle specific Supabase error messages
+      let errorMessage = error.message
+      if (error.message.includes('User already registered')) {
+        errorMessage = 'An account with this email already exists. Please try logging in instead.'
+      } else if (error.message.includes('Password should be at least')) {
+        errorMessage = 'Password must be at least 6 characters long'
+      } else if (error.message.includes('Invalid email')) {
+        errorMessage = 'Please enter a valid email address'
+      }
+      showMessage(errorMessage, 'error')
     } else {
-      showMessage('Account created successfully! You can now login.', 'success')
+      if (data.user && !data.user.email_confirmed_at) {
+        showMessage('Account created successfully! You can now login.', 'success')
+      } else {
+        showMessage('Account created successfully! Please check your email to confirm your account before logging in.', 'success')
+      }
       // Clear form
       document.querySelector('#signupForm').reset()
       // Redirect to login after 2 seconds
       setTimeout(() => {
         window.location.href = '/login.html'
-      }, 2000)
+      }, 3000)
     }
   } catch (error) {
+    console.error('Signup error:', error)
     showMessage('An unexpected error occurred. Please try again.', 'error')
   } finally {
     // Re-enable submit button
