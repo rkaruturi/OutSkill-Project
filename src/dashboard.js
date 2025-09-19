@@ -1,5 +1,5 @@
 import './style.css'
-import { signOut, getCurrentUser, onAuthStateChange } from './supabase.js'
+import { signOut, getCurrentUser, onAuthStateChange, getTasks, createTask, updateTask, deleteTask } from './supabase.js'
 
 document.querySelector('#app').innerHTML = `
   <div class="container">
@@ -15,11 +15,9 @@ document.querySelector('#app').innerHTML = `
         <h1 class="dashboard-heading">Your Tasks</h1>
         
         <div class="tasks-container">
-          <ul class="tasks-list" id="tasksList">
-            <li class="task-item">1. Finish homework</li>
-            <li class="task-item">2. Call John</li>
-            <li class="task-item">3. Buy groceries</li>
-          </ul>
+          <div class="tasks-list" id="tasksList">
+            <div class="loading-message">Loading tasks...</div>
+          </div>
         </div>
         
         <div class="add-task-section">
@@ -27,6 +25,11 @@ document.querySelector('#app').innerHTML = `
             <label for="newTask" class="input-label">New Task</label>
             <div class="add-task-container">
               <input type="text" id="newTask" name="newTask" class="input-field task-input" placeholder="Enter a new task" />
+              <select id="taskPriority" class="input-field priority-select">
+                <option value="low">Low Priority</option>
+                <option value="medium" selected>Medium Priority</option>
+                <option value="high">High Priority</option>
+              </select>
               <button type="button" class="add-task-btn" id="addTaskBtn">Add Task</button>
             </div>
           </div>
@@ -41,7 +44,7 @@ document.querySelector('#app').innerHTML = `
 `
 
 // Task management functionality
-let taskCount = 3;
+let tasks = [];
 
 // Check authentication on page load
 checkAuth()
@@ -58,6 +61,9 @@ async function checkAuth() {
   const heading = document.querySelector('.dashboard-heading')
   const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
   heading.textContent = `Welcome, ${userName}!`
+  
+  // Load tasks
+  await loadTasks()
 }
 
 // Listen for auth state changes
@@ -90,30 +96,159 @@ document.querySelector('#newTask').addEventListener('keypress', (e) => {
   }
 })
 
-function addNewTask() {
+async function loadTasks() {
+  const tasksList = document.querySelector('#tasksList')
+  tasksList.innerHTML = '<div class="loading-message">Loading tasks...</div>'
+  
+  try {
+    const { data, error } = await getTasks()
+    
+    if (error) {
+      tasksList.innerHTML = '<div class="error-message">Error loading tasks. Please refresh the page.</div>'
+      console.error('Error loading tasks:', error)
+      return
+    }
+    
+    tasks = data || []
+    renderTasks()
+  } catch (error) {
+    tasksList.innerHTML = '<div class="error-message">Error loading tasks. Please refresh the page.</div>'
+    console.error('Error loading tasks:', error)
+  }
+}
+
+function renderTasks() {
+  const tasksList = document.querySelector('#tasksList')
+  
+  if (tasks.length === 0) {
+    tasksList.innerHTML = '<div class="empty-message">No tasks yet. Add your first task below!</div>'
+    return
+  }
+  
+  tasksList.innerHTML = tasks.map(task => `
+    <div class="task-item" data-task-id="${task.id}">
+      <div class="task-content">
+        <div class="task-title">${escapeHtml(task.title)}</div>
+        <div class="task-meta">
+          <span class="task-priority priority-${task.priority}">${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}</span>
+          <select class="task-status-select" data-task-id="${task.id}">
+            <option value="pending" ${task.status === 'pending' ? 'selected' : ''}>Pending</option>
+            <option value="in-progress" ${task.status === 'in-progress' ? 'selected' : ''}>In Progress</option>
+            <option value="done" ${task.status === 'done' ? 'selected' : ''}>Done</option>
+          </select>
+        </div>
+      </div>
+      <button class="delete-task-btn" data-task-id="${task.id}">×</button>
+    </div>
+  `).join('')
+  
+  // Add event listeners for status changes and delete buttons
+  document.querySelectorAll('.task-status-select').forEach(select => {
+    select.addEventListener('change', handleStatusChange)
+  })
+  
+  document.querySelectorAll('.delete-task-btn').forEach(btn => {
+    btn.addEventListener('click', handleDeleteTask)
+  })
+}
+
+async function addNewTask() {
   const taskInput = document.querySelector('#newTask')
+  const prioritySelect = document.querySelector('#taskPriority')
   const taskText = taskInput.value.trim()
+  const priority = prioritySelect.value
   
   if (taskText) {
-    taskCount++
-    const tasksList = document.querySelector('#tasksList')
-    const newTaskItem = document.createElement('li')
-    newTaskItem.className = 'task-item'
-    newTaskItem.textContent = `${taskCount}. ${taskText}`
-    tasksList.appendChild(newTaskItem)
+    // Disable button during creation
+    const addBtn = document.querySelector('#addTaskBtn')
+    const originalText = addBtn.textContent
+    addBtn.disabled = true
+    addBtn.textContent = 'Adding...'
     
-    // Clear input
-    taskInput.value = ''
-    
-    // Add animation
-    newTaskItem.style.opacity = '0'
-    newTaskItem.style.transform = 'translateY(10px)'
-    setTimeout(() => {
-      newTaskItem.style.transition = 'all 0.3s ease'
-      newTaskItem.style.opacity = '1'
-      newTaskItem.style.transform = 'translateY(0)'
-    }, 10)
+    try {
+      const { data, error } = await createTask(taskText, priority)
+      
+      if (error) {
+        alert('Error creating task: ' + error.message)
+        return
+      }
+      
+      // Add new task to local array and re-render
+      tasks.unshift(data)
+      renderTasks()
+      
+      // Clear inputs
+      taskInput.value = ''
+      prioritySelect.value = 'medium'
+      
+    } catch (error) {
+      console.error('Error creating task:', error)
+      alert('Error creating task. Please try again.')
+    } finally {
+      // Re-enable button
+      addBtn.disabled = false
+      addBtn.textContent = originalText
+    }
   }
+}
+
+async function handleStatusChange(event) {
+  const taskId = event.target.dataset.taskId
+  const newStatus = event.target.value
+  
+  try {
+    const { error } = await updateTask(taskId, { status: newStatus })
+    
+    if (error) {
+      alert('Error updating task status: ' + error.message)
+      // Revert the select value
+      const task = tasks.find(t => t.id === taskId)
+      if (task) {
+        event.target.value = task.status
+      }
+      return
+    }
+    
+    // Update local task data
+    const taskIndex = tasks.findIndex(t => t.id === taskId)
+    if (taskIndex !== -1) {
+      tasks[taskIndex].status = newStatus
+    }
+    
+  } catch (error) {
+    console.error('Error updating task status:', error)
+    alert('Error updating task status. Please try again.')
+  }
+}
+
+async function handleDeleteTask(event) {
+  const taskId = event.target.dataset.taskId
+  const task = tasks.find(t => t.id === taskId)
+  
+  if (task && confirm(`Are you sure you want to delete "${task.title}"?`)) {
+    try {
+      const { error } = await deleteTask(taskId)
+      
+      if (error) {
+        alert('Error deleting task: ' + error.message)
+        return
+      }
+      
+      // Remove task from local array and re-render
+      tasks = tasks.filter(t => t.id !== taskId)
+      renderTasks()
+      
+    } catch (error) {
+      console.error('Error deleting task:', error)
+      alert('Error deleting task. Please try again.')
+    }
+  }
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div')
+  div.textContent = text
+  return div.innerHTML
 }
 
 async function handleLogout() {

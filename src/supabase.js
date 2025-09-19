@@ -142,3 +142,95 @@ export const updateProfile = async (userId, updates) => {
     return { data: null, error: { message: 'An unexpected error occurred while updating profile' } }
   }
 }
+
+// Task helper functions
+export const getTasks = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('tasks')
+      .select('*')
+      .order('created_at', { ascending: false })
+    
+    if (error) {
+      console.error('Get tasks error:', error)
+      return { data: null, error }
+    }
+    
+    return { data, error: null }
+  } catch (err) {
+    console.error('Get tasks exception:', err)
+    return { data: null, error: { message: 'An unexpected error occurred while fetching tasks' } }
+  }
+}
+
+export const createTask = async (title, priority = 'medium', status = 'pending') => {
+  try {
+    const user = await getCurrentUser()
+    if (!user) {
+      return { data: null, error: { message: 'User not authenticated' } }
+    }
+
+    const { data, error } = await supabase
+      .from('tasks')
+      .insert([
+        {
+          user_id: user.id,
+          title,
+          priority,
+          status
+        }
+      ])
+      .select()
+      .single()
+    
+    if (error) {
+      console.error('Create task error:', error)
+      return { data: null, error }
+    }
+    
+    return { data, error: null }
+  } catch (err) {
+    console.error('Create task exception:', err)
+    return { data: null, error: { message: 'An unexpected error occurred while creating task' } }
+  }
+}
+
+export const updateTask = async (taskId, updates) => {
+  try {
+    const { data, error } = await supabase
+      .from('tasks')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', taskId)
+      .select()
+      .single()
+    
+    if (error) {
+      console.error('Update task error:', error)
+      return { data: null, error }
+    }
+    
+    return { data, error: null }
+  } catch (err) {
+    console.error('Update task exception:', err)
+    return { data: null, error: { message: 'An unexpected error occurred while updating task' } }
+  }
+}
+
+export const deleteTask = async (taskId) => {
+  try {
+    const { error } = await supabase
+      .from('tasks')
+      .delete()
+      .eq('id', taskId)
+    
+    if (error) {
+      console.error('Delete task error:', error)
+      return { error }
+    }
+    
+    return { error: null }
+  } catch (err) {
+    console.error('Delete task exception:', err)
+    return { error: { message: 'An unexpected error occurred while deleting task' } }
+  }
+}
