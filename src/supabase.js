@@ -68,14 +68,26 @@ export const signOut = async () => {
 
 export const getCurrentUser = async () => {
   try {
+    // Check if supabase client is properly initialized
+    if (!supabase) {
+      console.error('Supabase client not initialized')
+      return null
+    }
+    
     const { data: { user }, error } = await supabase.auth.getUser()
     if (error) {
-      console.error('Get user error:', error)
+      // Don't log "Auth session missing!" as an error - it's normal when not logged in
+      if (!error.message.includes('Auth session missing')) {
+        console.error('Get user error:', error)
+      }
       return null
     }
     return user
   } catch (err) {
-    console.error('Get user exception:', err)
+    // Don't log auth session missing as an error
+    if (!err.message || !err.message.includes('Auth session missing')) {
+      console.error('Get user exception:', err)
+    }
     return null
   }
 }
