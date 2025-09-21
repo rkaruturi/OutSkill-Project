@@ -9,6 +9,9 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
+// Make supabase available globally for storage operations
+window.supabase = supabase
+
 // Auth helper functions
 export const signUp = async (email, password, name) => {
   try {

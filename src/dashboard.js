@@ -80,6 +80,15 @@ document.querySelector('.back-btn').addEventListener('click', () => {
   window.location.href = '/'
 })
 
+// Add profile navigation
+const profileBtn = document.createElement('button')
+profileBtn.className = 'nav-btn profile-btn'
+profileBtn.textContent = 'Profile'
+profileBtn.addEventListener('click', () => {
+  window.location.href = '/profile.html'
+})
+document.querySelector('.nav').insertBefore(profileBtn, document.querySelector('.logout-btn'))
+
 document.querySelector('.logout-btn').addEventListener('click', () => {
   handleLogout()
 })

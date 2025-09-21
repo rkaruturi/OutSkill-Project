@@ -1160,3 +1160,247 @@ body {
   outline: 3px solid var(--lighter-blue);
   outline-offset: 2px;
 }
+
+/* Profile Page Styles */
+.profile-section {
+  max-width: 600px;
+  width: 100%;
+  padding: 3rem 2.5rem;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 20px;
+  box-shadow: var(--shadow-lg);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.profile-heading {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, var(--primary-blue), var(--light-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.2;
+}
+
+.profile-card {
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.profile-picture-section {
+  padding: 2rem;
+  text-align: center;
+  background: linear-gradient(135deg, var(--lightest-blue), rgba(255, 255, 255, 0.8));
+  border-bottom: 1px solid var(--lightest-blue);
+}
+
+.profile-picture-container {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 1.5rem;
+}
+
+.profile-picture {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid var(--white);
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.profile-picture:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-lg);
+}
+
+.profile-picture-placeholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--lighter-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-blue);
+  border: 4px solid var(--white);
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.profile-picture-placeholder:hover {
+  background: var(--light-blue);
+  color: var(--white);
+}
+
+.upload-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.upload-btn {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: var(--primary-blue);
+  color: var(--white);
+  box-shadow: var(--shadow);
+}
+
+.upload-btn:hover {
+  background: var(--light-blue);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.upload-btn:active {
+  transform: translateY(0);
+}
+
+.upload-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.upload-hint {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin: 0;
+}
+
+.profile-info-section {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.save-profile-btn {
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: var(--primary-blue);
+  color: var(--white);
+  box-shadow: var(--shadow);
+  margin-top: 0.5rem;
+}
+
+.save-profile-btn:hover {
+  background: var(--light-blue);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.save-profile-btn:active {
+  transform: translateY(0);
+}
+
+.save-profile-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Responsive adjustments for profile page */
+@media (max-width: 768px) {
+  .profile-section {
+    padding: 2rem 1.5rem;
+    margin: 1rem;
+    max-width: 500px;
+  }
+  
+  .profile-heading {
+    font-size: 2rem;
+  }
+  
+  .profile-picture-container {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .profile-picture-section {
+    padding: 1.5rem;
+  }
+  
+  .profile-info-section {
+    padding: 1.5rem;
+  }
+  
+  .upload-btn {
+    padding: 0.7rem 1.25rem;
+    font-size: 0.9rem;
+  }
+  
+  .save-profile-btn {
+    padding: 0.9rem 1.5rem;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-section {
+    padding: 1.5rem 1rem;
+    border-radius: 15px;
+  }
+  
+  .profile-heading {
+    font-size: 1.75rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .profile-picture-container {
+    width: 90px;
+    height: 90px;
+  }
+  
+  .profile-picture-section {
+    padding: 1.25rem;
+  }
+  
+  .profile-info-section {
+    padding: 1.25rem;
+    gap: 1.25rem;
+  }
+  
+  .upload-btn {
+    padding: 0.65rem 1rem;
+    font-size: 0.85rem;
+  }
+  
+  .save-profile-btn {
+    padding: 0.85rem 1.25rem;
+    font-size: 0.9rem;
+  }
+  
+  .upload-hint {
+    font-size: 0.8rem;
+  }
+}
+
+/* Focus states for profile page accessibility */
+.upload-btn:focus,
+.save-profile-btn:focus {
+  outline: 3px solid var(--lighter-blue);
+  outline-offset: 2px;
+}
