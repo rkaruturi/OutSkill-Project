@@ -15,6 +15,18 @@ document.querySelector('#app').innerHTML = `
         <h1 class="dashboard-heading">Your Tasks</h1>
         
         <div class="smart-search-section">
+          <label for="smartSearch" class="search-label">Smart Search</label>
+          <div class="search-input-container">
+            <input type="text" id="smartSearch" class="search-input" placeholder="Search your tasks intelligently..." />
+            <button type="button" class="search-btn" id="searchBtn">Search</button>
+          </div>
+          <div class="search-results" id="searchResults" style="display: none;">
+            <h3 class="search-results-title">Search Results</h3>
+            <div class="search-results-list" id="searchResultsList"></div>
+          </div>
+        </div>
+        
+        <div class="smart-search-section">
           <div class="search-container">
             <label for="smartSearch" class="search-label">Smart Search</label>
             <div class="search-input-container">
@@ -133,6 +145,16 @@ document.querySelector('#smartSearch').addEventListener('keypress', (e) => {
   }
 })
 
+document.querySelector('#searchBtn').addEventListener('click', () => {
+  performSmartSearch()
+})
+
+document.querySelector('#smartSearch').addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    performSmartSearch()
+  }
+})
+
 async function loadTasks() {
   const tasksList = document.querySelector('#tasksList')
   tasksList.innerHTML = '<div class="loading-message">Loading tasks...</div>'
@@ -163,6 +185,60 @@ async function loadAllSubtasks() {
     }
   }
   renderTasks()
+}
+
+async function performSmartSearch() {
+  const searchInput = document.querySelector('#smartSearch')
+  const searchBtn = document.querySelector('#searchBtn')
+  const searchResultsDiv = document.querySelector('#searchResults')
+  const searchResultsList = document.querySelector('#searchResultsList')
+  
+  const query = searchInput.value.trim()
+  
+  if (!query) {
+    searchResultsDiv.style.display = 'none'
+    return
+  }
+  
+  const originalText = searchBtn.textContent
+  searchBtn.disabled = true
+  searchBtn.textContent = 'Searching...'
+  
+  try {
+    const { data, error } = await smartSearch(query)
+    
+    if (error) {
+      console.error('Search error:', error)
+      searchResultsList.innerHTML = '<div class="search-error">Search failed. Please try again.</div>'
+      searchResultsDiv.style.display = 'block'
+      return
+    }
+    
+    if (!data || data.length === 0) {
+      searchResultsList.innerHTML = '<div class="search-empty">No similar tasks found. Try a different search term.</div>'
+    } else {
+      searchResultsList.innerHTML = data.map(result => `
+        <div class="search-result-item">
+          <div class="search-result-title">${escapeHtml(result.title)}</div>
+          <div class="search-result-meta">
+            <span class="search-result-priority priority-${result.priority}">${result.priority.charAt(0).toUpperCase() + result.priority.slice(1)}</span>
+            <span class="search-result-status">${result.status.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
+            <span class="search-result-similarity">${Math.round(result.similarity * 100)}% match</span>
+          </div>
+        </div>
+      `).join('')
+    }
+    
+    searchResultsDiv.style.display = 'block'
+    
+  } catch (error) {
+    console.error('Search error:', error)
+    searchResultsList.innerHTML = '<div class="search-error">Search failed. Please try again.</div>'
+    searchResultsDiv.style.display = 'block'
+  } finally {
+    searchBtn.disabled = false
+    searchBtn.textContent = originalText
+  }
 }
 
 async function performSmartSearch() {

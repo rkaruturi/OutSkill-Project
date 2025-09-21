@@ -422,4 +422,3 @@ export const smartSearch = async (query) => {
     console.error('Smart search exception:', err)
     return { data: null, error: { message: 'An unexpected error occurred during search' } }
   }
-}
