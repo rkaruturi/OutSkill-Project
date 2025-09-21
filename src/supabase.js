@@ -234,3 +234,119 @@ export const deleteTask = async (taskId) => {
     return { error: { message: 'An unexpected error occurred while deleting task' } }
   }
 }
+
+// Subtask helper functions
+export const getSubtasks = async (parentTaskId) => {
+  try {
+    const { data, error } = await supabase
+      .from('subtasks')
+      .select('*')
+      .eq('parent_task_id', parentTaskId)
+      .order('created_at', { ascending: true })
+    
+    if (error) {
+      console.error('Get subtasks error:', error)
+      return { data: null, error }
+    }
+    
+    return { data, error: null }
+  } catch (err) {
+    console.error('Get subtasks exception:', err)
+    return { data: null, error: { message: 'An unexpected error occurred while fetching subtasks' } }
+  }
+}
+
+export const createSubtask = async (parentTaskId, title, status = 'pending') => {
+  try {
+    const { data, error } = await supabase
+      .from('subtasks')
+      .insert([
+        {
+          parent_task_id: parentTaskId,
+          title,
+          status
+        }
+      ])
+      .select()
+      .single()
+    
+    if (error) {
+      console.error('Create subtask error:', error)
+      return { data: null, error }
+    }
+    
+    return { data, error: null }
+  } catch (err) {
+    console.error('Create subtask exception:', err)
+    return { data: null, error: { message: 'An unexpected error occurred while creating subtask' } }
+  }
+}
+
+export const updateSubtask = async (subtaskId, updates) => {
+  try {
+    const { data, error } = await supabase
+      .from('subtasks')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', subtaskId)
+      .select()
+      .single()
+    
+    if (error) {
+      console.error('Update subtask error:', error)
+      return { data: null, error }
+    }
+    
+    return { data, error: null }
+  } catch (err) {
+    console.error('Update subtask exception:', err)
+    return { data: null, error: { message: 'An unexpected error occurred while updating subtask' } }
+  }
+}
+
+export const deleteSubtask = async (subtaskId) => {
+  try {
+    const { error } = await supabase
+      .from('subtasks')
+      .delete()
+      .eq('id', subtaskId)
+    
+    if (error) {
+      console.error('Delete subtask error:', error)
+      return { error }
+    }
+    
+    return { error: null }
+  } catch (err) {
+    console.error('Delete subtask exception:', err)
+    return { error: { message: 'An unexpected error occurred while deleting subtask' } }
+  }
+}
+
+// AI subtask generation
+export const generateSubtasks = async (taskTitle) => {
+  try {
+    const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-subtasks`
+    
+    const headers = {
+      'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+    }
+    
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ taskTitle })
+    })
+    
+    if (!response.ok) {
+      const errorData = await response.json()
+      return { data: null, error: { message: errorData.error || 'Failed to generate subtasks' } }
+    }
+    
+    const data = await response.json()
+    return { data: data.subtasks, error: null }
+  } catch (err) {
+    console.error('Generate subtasks exception:', err)
+    return { data: null, error: { message: 'An unexpected error occurred while generating subtasks' } }
+  }
+}
