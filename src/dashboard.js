@@ -177,59 +177,6 @@ async function loadAllSubtasks() {
   renderTasks()
 }
 
-async function performSmartSearch() {
-  const searchInput = document.querySelector('#smartSearch')
-  const searchBtn = document.querySelector('#searchBtn')
-  const searchResultsDiv = document.querySelector('#searchResults')
-  const searchResultsList = document.querySelector('#searchResultsList')
-  
-  const query = searchInput.value.trim()
-  
-  if (!query) {
-    searchResultsDiv.style.display = 'none'
-    return
-  }
-  
-  const originalText = searchBtn.textContent
-  searchBtn.disabled = true
-  searchBtn.textContent = 'Searching...'
-  
-  try {
-    const { data, error } = await smartSearch(query)
-    
-    if (error) {
-      console.error('Search error:', error)
-      searchResultsList.innerHTML = '<div class="search-error">Search failed. Please try again.</div>'
-      searchResultsDiv.style.display = 'block'
-      return
-    }
-    
-    if (!data || data.length === 0) {
-      searchResultsList.innerHTML = '<div class="search-empty">No similar tasks found. Try a different search term.</div>'
-    } else {
-      searchResultsList.innerHTML = data.map(result => `
-        <div class="search-result-item">
-          <div class="search-result-title">${escapeHtml(result.title)}</div>
-          <div class="search-result-meta">
-            <span class="search-result-priority priority-${result.priority}">${result.priority.charAt(0).toUpperCase() + result.priority.slice(1)}</span>
-            <span class="search-result-status">${result.status.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</span>
-            <span class="search-result-similarity">${Math.round(result.similarity * 100)}% match</span>
-          </div>
-        </div>
-      `).join('')
-    }
-    
-    searchResultsDiv.style.display = 'block'
-    
-  } catch (error) {
-    console.error('Search error:', error)
-    searchResultsList.innerHTML = '<div class="search-error">Search failed. Please try again.</div>'
-    searchResultsDiv.style.display = 'block'
-  } finally {
-    searchBtn.disabled = false
-    searchBtn.textContent = originalText
-  }
-}
 
 function renderTasks() {
   const tasksList = document.querySelector('#tasksList')
