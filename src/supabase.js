@@ -389,3 +389,37 @@ export const generateSubtasks = async (taskTitle) => {
     return { data: null, error: { message: 'An unexpected error occurred while generating subtasks' } }
   }
 }
+
+// Smart search function
+export const smartSearch = async (query) => {
+  try {
+    const user = await getCurrentUser()
+    if (!user) {
+      return { data: null, error: { message: 'User not authenticated' } }
+    }
+
+    const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/smart-search`
+    
+    const headers = {
+      'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+      'Content-Type': 'application/json',
+    }
+    
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ query, userId: user.id })
+    })
+    
+    if (!response.ok) {
+      const errorData = await response.json()
+      return { data: null, error: { message: errorData.error || 'Search failed' } }
+    }
+    
+    const data = await response.json()
+    return { data: data.results, error: null }
+  } catch (err) {
+    console.error('Smart search exception:', err)
+    return { data: null, error: { message: 'An unexpected error occurred during search' } }
+  }
+}
