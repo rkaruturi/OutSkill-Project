@@ -146,6 +146,42 @@ export const updateProfile = async (userId, updates) => {
   }
 }
 
+// Profile picture upload function
+export const uploadProfilePicture = async (file) => {
+  try {
+    const user = await getCurrentUser()
+    if (!user) {
+      return { data: null, error: { message: 'User not authenticated' } }
+    }
+
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${user.id}/${user.id}-${Date.now()}.${fileExt}`
+    
+    const { data, error } = await supabase.storage
+      .from('profile-pictures')
+      .upload(fileName, file, {
+        cacheControl: '3600',
+        upsert: false
+      })
+    
+    if (error) {
+      console.error('Upload error:', error)
+      return { data: null, error }
+    }
+    
+    // Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from('profile-pictures')
+      .getPublicUrl(fileName)
+    
+    return { data: { publicUrl }, error: null }
+    
+  } catch (err) {
+    console.error('Upload exception:', err)
+    return { data: null, error: { message: 'An unexpected error occurred during upload' } }
+  }
+}
+
 // Task helper functions
 export const getTasks = async () => {
   try {

@@ -1,5 +1,5 @@
 import './style.css'
-import { signOut, getCurrentUser, onAuthStateChange, getProfile, updateProfile } from './supabase.js'
+import { signOut, getCurrentUser, onAuthStateChange, getProfile, updateProfile, uploadProfilePicture } from './supabase.js'
 
 document.querySelector('#app').innerHTML = `
   <div class="container">
@@ -193,36 +193,6 @@ async function handleFileUpload(event) {
     uploadBtn.textContent = originalText
     // Clear the file input
     event.target.value = ''
-  }
-}
-
-async function uploadProfilePicture(file) {
-  try {
-    const fileExt = file.name.split('.').pop()
-    const fileName = `${currentUser.id}-${Date.now()}.${fileExt}`
-    const filePath = `profile-pictures/${fileName}`
-    
-    const { data, error } = await window.supabase.storage
-      .from('profile-pictures')
-      .upload(filePath, file, {
-        cacheControl: '3600',
-        upsert: false
-      })
-    
-    if (error) {
-      return { data: null, error }
-    }
-    
-    // Get public URL
-    const { data: { publicUrl } } = window.supabase.storage
-      .from('profile-pictures')
-      .getPublicUrl(filePath)
-    
-    return { data: { publicUrl }, error: null }
-    
-  } catch (err) {
-    console.error('Upload exception:', err)
-    return { data: null, error: { message: 'An unexpected error occurred during upload' } }
   }
 }
 
